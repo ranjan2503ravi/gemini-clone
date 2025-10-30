@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Alice&display=swap');
+@import "tailwindcss";
+*{
+     font-family: 'Alice', serif;
+}
+
+::-webkit-scrollbar{
+    width: 7px;
+    height: 7px;
+}
+::-webkit-scrollbar-thumb{
+    background-color:gray ;
+    border-radius: 15px;
+}
+::-webkit-scrollbar-thumb:hover{
+    background-color:blue;
+   
+}
