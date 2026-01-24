@@ -1,16 +1,16 @@
 import React from 'react';
 import Sidebar from './Components/Sidebar/Sidebar';
 import Main from './Components/Main/Main';
-import { ProviderContext } from './Context/Context';
+import MyContext from './Context/MyContext';
 
 const App = () => {
   return (
-    <ProviderContext>
-      <div className='flex'>
+    <div className='flex'>
+      <MyContext>
         <Sidebar />
         <Main />
-      </div>
-      </ProviderContext>
+      </MyContext>
+    </div>
   );
 };
 
