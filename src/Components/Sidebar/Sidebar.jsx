@@ -3,7 +3,7 @@ import { MyNewContext } from "../../Context/MyContext";
 
 const Sidebar = () => {
   const [Menu, setMenu] = useState(false);
-  const { history } = useContext(MyNewContext); // 👈 get history
+  const { history } = useContext(MyNewContext); 
 
   const handleClick = () => {
     setMenu(prev => !prev);

@@ -7,13 +7,13 @@ const MyContext = ({ children }) => {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [history, setHistory] = useState([]); // 👈 NEW
+  const [history, setHistory] = useState([]);
 
   const sendPrompt = async (prompt) => {
     setLoading(true);
     setError(null);
 
-    // Save prompt in history
+   
     setHistory(prev => [...prev, prompt]);
 
     try {
