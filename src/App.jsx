@@ -1,19 +1,17 @@
-import React from 'react';
-import Sidebar from './Components/Sidebar/Sidebar';
-import Main from './Components/Main/Main';
-import MyContext from './Context/MyContext';
+import React from "react";
+import MyContext from "./Context/MyContext";
+import Sidebar from "./Components/Sidebar/Sidebar";
+import Main from "./Components/Main/Main";
 
 const App = () => {
   return (
-    <div className='flex'>
-      <MyContext>
+    <MyContext>
+      <div className="flex">
         <Sidebar />
         <Main />
-      </MyContext>
-    </div>
+      </div>
+    </MyContext>
   );
 };
 
 export default App;
-
-

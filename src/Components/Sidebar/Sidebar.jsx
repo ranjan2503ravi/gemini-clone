@@ -3,10 +3,10 @@ import { MyNewContext } from "../../Context/MyContext";
 
 const Sidebar = () => {
   const [Menu, setMenu] = useState(false);
-  const { history } = useContext(MyNewContext); 
+  const { history, activeChat, setActiveChat, clearChat } = useContext(MyNewContext);
 
   const handleClick = () => {
-    setMenu(prev => !prev);
+    setMenu((prev) => !prev);
   };
 
   return (
@@ -21,11 +21,16 @@ const Sidebar = () => {
           ></i>
         </div>
 
-        <div className="flex items-center mt-10 mb-8 text-zinc-300 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
+        {/* New Chat */}
+        <div
+          onClick={clearChat}
+          className="flex items-center mt-10 mb-8 text-zinc-300 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300"
+        >
           <i className="ri-add-large-line ml-2"></i>
           {Menu && <p className="ml-4 text-sm">New Chat</p>}
         </div>
 
+        {/* Recent Chats */}
         {Menu && (
           <div className="text-zinc-400 overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
             <p className="mb-3 ml-2.5 text-sm uppercase tracking-wide text-zinc-500">
@@ -38,11 +43,16 @@ const Sidebar = () => {
               history.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300"
+                  onClick={() => setActiveChat(index)}
+                  className={`flex items-center p-2 rounded-2xl cursor-pointer transition-all duration-300 ${
+                    activeChat === index
+                      ? "bg-blue-600/30 text-white"
+                      : "hover:bg-[#3e4348]"
+                  }`}
                 >
                   <i className="ri-chat-1-line ml-2"></i>
                   <p className="ml-4 text-sm truncate w-[150px]">
-                    {item}
+                    {item.user}
                   </p>
                 </div>
               ))
@@ -51,6 +61,7 @@ const Sidebar = () => {
         )}
       </div>
 
+      {/* Bottom Options */}
       <div className="space-y-2 text-[16px] text-zinc-300">
         <div className="flex items-center gap-4 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
           <i className="ri-question-line ml-2"></i>

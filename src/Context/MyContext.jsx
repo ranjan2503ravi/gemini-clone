@@ -1,24 +1,35 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import main from "../Config/gemini";
 
 export const MyNewContext = createContext();
 
 const MyContext = ({ children }) => {
-  const [response, setResponse] = useState("");
+  const [history, setHistory] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [history, setHistory] = useState([]);
+
+  // Load from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("chatHistory");
+    if (saved) setHistory(JSON.parse(saved));
+  }, []);
+
+  // Save to localStorage
+  useEffect(() => {
+    localStorage.setItem("chatHistory", JSON.stringify(history));
+  }, [history]);
 
   const sendPrompt = async (prompt) => {
     setLoading(true);
     setError(null);
 
-   
-    setHistory(prev => [...prev, prompt]);
-
     try {
       const res = await main(prompt);
-      setResponse(res);
+      const newChat = { user: prompt, ai: res };
+
+      setHistory((prev) => [...prev, newChat]);
+      setActiveChat(history.length);
     } catch (err) {
       console.error("Gemini Error:", err);
       setError("Something went wrong");
@@ -27,8 +38,23 @@ const MyContext = ({ children }) => {
     }
   };
 
+  const clearChat = () => {
+    setHistory([]);
+    setActiveChat(null);
+  };
+
   return (
-    <MyNewContext.Provider value={{ response, sendPrompt, loading, error, history }}>
+    <MyNewContext.Provider
+      value={{
+        history,
+        activeChat,
+        setActiveChat,
+        sendPrompt,
+        loading,
+        error,
+        clearChat,
+      }}
+    >
       {children}
     </MyNewContext.Provider>
   );
