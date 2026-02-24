@@ -27,12 +27,10 @@ const Main = () => {
 
   return (
     <div className="min-h-screen bg-[#121212] text-white flex flex-col flex-1 items-center justify-center px-4 py-8">
-      {/* Show Welcome UI when no chats */}
+      
       {history.length === 0 && !loading && (
         <>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center">
-            Gemini AI Assistant
-          </h1>
+          <img src="/img/download.png" alt="" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full sm:w-4/5 mb-8">
             {prompts.map((item, index) => (
@@ -49,16 +47,16 @@ const Main = () => {
         </>
       )}
 
-      {/* Chat Area */}
+     
       <div className="w-full max-w-2xl flex flex-col gap-4 mb-6 overflow-y-auto max-h-[60vh]">
         {history.map((item, index) => (
           <div key={index} className="space-y-3">
-            {/* User message */}
+           
             <div className="bg-zinc-700 p-3 rounded-lg self-end text-right ml-auto w-fit max-w-[80%]">
               {item.user}
             </div>
 
-            {/* AI message */}
+            
             <div className="bg-zinc-800 p-3 rounded-lg self-start mr-auto w-fit max-w-[80%] relative">
               <ReactMarkdown>{item.ai}</ReactMarkdown>
               <button
@@ -75,7 +73,7 @@ const Main = () => {
       {loading && <p className="text-blue-400 mb-4">Thinking...</p>}
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      {/* Input Box */}
+      
       <div className="w-full max-w-2xl bg-[#1B1C1D] rounded-xl shadow-[0_0_20px_5px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_8px_rgba(255,255,255,0.2)] transition-all duration-300 p-4 flex items-center gap-4">
         <input
           value={Input}

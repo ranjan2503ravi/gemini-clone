@@ -9,13 +9,13 @@ const MyContext = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Load from localStorage
+  
   useEffect(() => {
     const saved = localStorage.getItem("chatHistory");
     if (saved) setHistory(JSON.parse(saved));
   }, []);
 
-  // Save to localStorage
+ 
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(history));
   }, [history]);

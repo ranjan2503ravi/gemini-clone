@@ -21,7 +21,6 @@ const Sidebar = () => {
           ></i>
         </div>
 
-        {/* New Chat */}
         <div
           onClick={clearChat}
           className="flex items-center mt-10 mb-8 text-zinc-300 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300"
@@ -30,7 +29,7 @@ const Sidebar = () => {
           {Menu && <p className="ml-4 text-sm">New Chat</p>}
         </div>
 
-        {/* Recent Chats */}
+       
         {Menu && (
           <div className="text-zinc-400 overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
             <p className="mb-3 ml-2.5 text-sm uppercase tracking-wide text-zinc-500">
@@ -61,7 +60,7 @@ const Sidebar = () => {
         )}
       </div>
 
-      {/* Bottom Options */}
+     
       <div className="space-y-2 text-[16px] text-zinc-300">
         <div className="flex items-center gap-4 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
           <i className="ri-question-line ml-2"></i>
