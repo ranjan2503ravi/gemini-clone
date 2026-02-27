@@ -6,7 +6,7 @@ import Main from "./Components/Main/Main";
 const App = () => {
   return (
     <MyContext>
-      <div className="flex">
+      <div className="flex h-screen overflow-hidden bg-[#121212]">
         <Sidebar />
         <Main />
       </div>

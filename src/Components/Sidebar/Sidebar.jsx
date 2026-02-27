@@ -1,83 +1,103 @@
 import React, { useState, useContext } from "react";
 import { MyNewContext } from "../../Context/MyContext";
+import { FiPlus, FiMenu, FiChevronLeft } from "react-icons/fi";
 
 const Sidebar = () => {
-  const [Menu, setMenu] = useState(false);
-  const { history, activeChat, setActiveChat, clearChat } = useContext(MyNewContext);
+  const [isOpen, setIsOpen] = useState(true);      
+  const [mobileOpen, setMobileOpen] = useState(false); 
 
-  const handleClick = () => {
-    setMenu((prev) => !prev);
-  };
+  const { history, activeChat, setActiveChat, clearChat } =
+    useContext(MyNewContext);
 
   return (
-    <div
-      className={`${Menu ? "w-[280px]" : "w-[100px]"} h-screen bg-[#353739] flex flex-col justify-between p-3 text-zinc-400 font-medium transition-all duration-300`}
-    >
-      <div>
-        <div className="relative flex items-center justify-between">
-          <i
-            onClick={handleClick}
-            className="ri-menu-fill text-[22px] text-zinc-200 cursor-pointer p-2.5 rounded-full hover:bg-[#1B1C1D] transition-colors duration-300"
-          ></i>
-        </div>
+    <>
+      
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-[#353739] p-4 z-50 flex justify-between items-center">
+        <FiMenu
+          size={24}
+          className="text-white cursor-pointer"
+          onClick={() => setMobileOpen(true)}
+        />
+        <p className="text-white font-semibold text-sm">Chats</p>
+      </div>
 
+      
+      {mobileOpen && (
         <div
-          onClick={clearChat}
-          className="flex items-center mt-10 mb-8 text-zinc-300 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300"
-        >
-          <i className="ri-add-large-line ml-2"></i>
-          {Menu && <p className="ml-4 text-sm">New Chat</p>}
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      
+      <div
+        className={`
+          fixed md:relative z-50 h-screen bg-[#353739] flex flex-col justify-between transition-all duration-300
+          ${isOpen ? "md:w-[260px]" : "md:w-[80px]"}
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+          w-[75vw] max-w-[260px] shadow-lg
+        `}
+      >
+       
+        <div className="p-4 mt-16 md:mt-0 flex flex-col">
+          
+          <div className="hidden md:flex justify-end mb-4">
+            <FiChevronLeft
+              size={24}
+              className="text-white cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+            />
+          </div>
+
+          
+          <div
+            onClick={clearChat}
+            className="flex items-center gap-3 p-3 hover:bg-[#3e4348] rounded-xl cursor-pointer transition-all duration-200 shadow-sm"
+          >
+            <FiPlus className="text-white" size={18} />
+            {isOpen && <p className="text-white text-sm font-medium">New Chat</p>}
+          </div>
+
+          
+          <div className="mt-6 space-y-2 overflow-y-auto max-h-[60vh] pr-1">
+            {history.length > 0 && isOpen && (
+              <p className="text-xs text-zinc-400 uppercase tracking-wider mb-2">Recent</p>
+            )}
+            {history.map((item, index) => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  setActiveChat(index);
+                  setMobileOpen(false);
+                }}
+                className={`
+                  flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200
+                  ${activeChat === index ? "bg-blue-600/40 text-white" : "hover:bg-[#3e4348] text-zinc-300"}
+                `}
+              >
+                <i className="ri-chat-1-line text-lg"></i>
+                {isOpen && <p className="truncate text-sm font-medium">{item.user}</p>}
+              </div>
+            ))}
+          </div>
         </div>
 
-       
-        {Menu && (
-          <div className="text-zinc-400 overflow-y-auto max-h-[60vh] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-            <p className="mb-3 ml-2.5 text-sm uppercase tracking-wide text-zinc-500">
-              Recent
-            </p>
-
-            {history.length === 0 ? (
-              <p className="ml-4 text-sm text-zinc-500">No history yet</p>
-            ) : (
-              history.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => setActiveChat(index)}
-                  className={`flex items-center p-2 rounded-2xl cursor-pointer transition-all duration-300 ${
-                    activeChat === index
-                      ? "bg-blue-600/30 text-white"
-                      : "hover:bg-[#3e4348]"
-                  }`}
-                >
-                  <i className="ri-chat-1-line ml-2"></i>
-                  <p className="ml-4 text-sm truncate w-[150px]">
-                    {item.user}
-                  </p>
-                </div>
-              ))
-            )}
+        
+        {isOpen && (
+          <div className="p-4 space-y-3 text-zinc-300">
+            <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-all duration-200">
+              <i className="ri-question-line text-lg"></i>
+              <p className="text-sm">Help</p>
+            </div>
+            <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-all duration-200">
+              <i className="ri-settings-5-line text-lg"></i>
+              <p className="text-sm">Settings</p>
+            </div>
           </div>
         )}
       </div>
-
-     
-      <div className="space-y-2 text-[16px] text-zinc-300">
-        <div className="flex items-center gap-4 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
-          <i className="ri-question-line ml-2"></i>
-          {Menu && <p className="text-sm">Help</p>}
-        </div>
-
-        <div className="flex items-center gap-4 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
-          <i className="ri-history-line ml-2"></i>
-          {Menu && <p className="text-sm">Activity</p>}
-        </div>
-
-        <div className="flex items-center gap-4 p-2 hover:bg-[#3e4348] rounded-2xl cursor-pointer transition-all duration-300">
-          <i className="ri-settings-5-line ml-2"></i>
-          {Menu && <p className="text-sm">Settings</p>}
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

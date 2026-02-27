@@ -1,102 +1,115 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { MyNewContext } from "../../Context/MyContext";
 import ReactMarkdown from "react-markdown";
-
-const prompts = [
-  { text: "Suggest beautiful places to see on an upcoming road trip", icon: "ri-compass-2-line" },
-  { text: "Briefly summarize this concept: Urban Planning", icon: "ri-lightbulb-flash-line" },
-  { text: "Brainstorm team bonding activities for our work retreat", icon: "ri-mail-fill" },
-  { text: "Improve the readability of the following code", icon: "ri-code-s-slash-line" },
-];
+import { motion } from "framer-motion";
 
 const Main = () => {
-  const [Input, setInput] = useState("");
-  const { history, activeChat, sendPrompt, loading, error } = useContext(MyNewContext);
+  const [input, setInput] = useState("");
+  const [streamedText, setStreamedText] = useState("");
+  const { history, sendPrompt, loading, error } =
+    useContext(MyNewContext);
+
+  const bottomRef = useRef();
 
   const handleSend = () => {
-    if (Input.trim() !== "") {
-      sendPrompt(Input);
+    if (input.trim()) {
+      sendPrompt(input);
       setInput("");
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
-  };
+  
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, streamedText, loading]);
+
+  
+  useEffect(() => {
+    if (!loading && history.length > 0) {
+      const lastMessage = history[history.length - 1].ai;
+      let index = 0;
+
+      setStreamedText("");
+
+      const interval = setInterval(() => {
+        setStreamedText(lastMessage.slice(0, index));
+        index++;
+
+        if (index > lastMessage.length) {
+          clearInterval(interval);
+        }
+      }, 15); 
+
+      return () => clearInterval(interval);
+    }
+  }, [history, loading]);
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white flex flex-col flex-1 items-center justify-center px-4 py-8">
-      
-      {history.length === 0 && !loading && (
-        <>
-          <img src="/img/download.png" alt="" />
+    <div className="flex-1 h-full flex flex-col overflow-hidden bg-[#121212] text-white pt-20">
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full sm:w-4/5 mb-8">
-            {prompts.map((item, index) => (
-              <div
-                key={index}
-                className="bg-zinc-700 hover:bg-zinc-800 p-5 rounded-xl flex flex-col justify-between cursor-pointer transition-transform hover:scale-105 shadow-md hover:shadow-lg"
-                onClick={() => sendPrompt(item.text)}
+      <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col items-center">
+
+        <div className="w-full max-w-3xl space-y-6">
+
+          {history.map((item, index) => {
+            const isLast = index === history.length - 1;
+
+            return (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
               >
-                <p className="text-sm sm:text-base">{item.text}</p>
-                <i className={`${item.icon} self-end text-3xl mt-4 text-blue-400`}></i>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+                
+                <div className="bg-zinc-700 p-3 rounded-lg ml-auto w-fit max-w-[80%]">
+                  {item.user}
+                </div>
 
-     
-      <div className="w-full max-w-2xl flex flex-col gap-4 mb-6 overflow-y-auto max-h-[60vh]">
-        {history.map((item, index) => (
-          <div key={index} className="space-y-3">
-           
-            <div className="bg-zinc-700 p-3 rounded-lg self-end text-right ml-auto w-fit max-w-[80%]">
-              {item.user}
-            </div>
+               
+                <div className="bg-zinc-800 p-3 rounded-lg w-fit max-w-[80%]">
+                  <ReactMarkdown>
+                    {isLast ? streamedText : item.ai}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
+            );
+          })}
 
-            
-            <div className="bg-zinc-800 p-3 rounded-lg self-start mr-auto w-fit max-w-[80%] relative">
-              <ReactMarkdown>{item.ai}</ReactMarkdown>
-              <button
-                onClick={() => copyToClipboard(item.ai)}
-                className="absolute top-2 right-2 text-xs text-blue-400 hover:underline"
-              >
-                Copy
-              </button>
+          {loading && (
+            <div className="flex gap-2">
+              <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-150"></span>
+              <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-300"></span>
             </div>
-          </div>
-        ))}
+          )}
+
+          {error && <p className="text-red-500">{error}</p>}
+
+          <div ref={bottomRef} />
+        </div>
+
       </div>
 
-      {loading && <p className="text-blue-400 mb-4">Thinking...</p>}
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
       
-      <div className="w-full max-w-2xl bg-[#1B1C1D] rounded-xl shadow-[0_0_20px_5px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_8px_rgba(255,255,255,0.2)] transition-all duration-300 p-4 flex items-center gap-4">
-        <input
-          value={Input}
-          onChange={(e) => setInput(e.target.value)}
-          type="text"
-          placeholder="Enter a prompt here..."
-          className="flex-1 bg-transparent outline-none border-none text-white placeholder:text-zinc-400 px-3 py-2 rounded-lg text-sm sm:text-base"
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-        />
-        <div className="flex gap-4 text-xl sm:text-2xl cursor-pointer text-zinc-400 hover:text-white">
-          <i className="ri-gallery-view-2"></i>
-          <i className="ri-mic-ai-fill"></i>
-          <i className="ri-mail-send-line hover:text-blue-400" onClick={handleSend}></i>
+      <div className="p-4 border-t border-zinc-800">
+        <div className="max-w-3xl mx-auto bg-[#1B1C1D] rounded-xl p-4 flex items-center gap-4">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            type="text"
+            placeholder="Enter a prompt..."
+            className="flex-1 bg-transparent outline-none text-white"
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          />
+          <i
+            className="ri-mail-send-line text-xl cursor-pointer hover:text-blue-400"
+            onClick={handleSend}
+          ></i>
         </div>
       </div>
 
-      <footer className="text-center mt-10 text-zinc-400 text-sm sm:text-base px-3">
-        Welcome to{" "}
-        <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent font-semibold">
-          Gemini
-        </span>
-        , your personal AI assistant.
-      </footer>
     </div>
   );
 };
