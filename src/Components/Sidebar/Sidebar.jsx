@@ -1,30 +1,47 @@
 import React, { useState, useContext } from "react";
 import { MyNewContext } from "../../Context/MyContext";
-import { FiPlus, FiMenu, FiChevronLeft } from "react-icons/fi";
+import ChatItem from "./ChatItem";
+
+import {
+  FiPlus,
+  FiMenu,
+  FiChevronLeft,
+  FiSearch,
+  FiBookmark,
+  FiUser,
+  FiSettings,
+} from "react-icons/fi";
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);      
-  const [mobileOpen, setMobileOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const { history, activeChat, setActiveChat, clearChat } =
     useContext(MyNewContext);
 
+  
+  const filteredChats = history.filter((item) =>
+    item.user.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <>
       
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-[#353739] p-4 z-50 flex justify-between items-center">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-white/10">
         <FiMenu
-          size={24}
           className="text-white cursor-pointer"
+          size={22}
           onClick={() => setMobileOpen(true)}
         />
-        <p className="text-white font-semibold text-sm">Chats</p>
+        <p className="text-white text-sm font-semibold">AI Studio</p>
+        <FiUser className="text-white" size={18} />
       </div>
 
       
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -32,70 +49,123 @@ const Sidebar = () => {
       
       <div
         className={`
-          fixed md:relative z-50 h-screen bg-[#353739] flex flex-col justify-between transition-all duration-300
-          ${isOpen ? "md:w-[260px]" : "md:w-[80px]"}
+          fixed md:relative z-50 h-screen flex flex-col justify-between
+          bg-gradient-to-b from-[#0a0a0a] to-[#141414]
+          border-r border-white/10 transition-all duration-300
+
+          ${isOpen ? "md:w-[280px]" : "md:w-[85px]"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0
-          w-[75vw] max-w-[260px] shadow-lg
+          md:translate-x-0 w-[80vw] max-w-[280px]
         `}
       >
-       
-        <div className="p-4 mt-16 md:mt-0 flex flex-col">
-          
-          <div className="hidden md:flex justify-end mb-4">
+      
+        <div className="p-4">
+
+          <div className="flex items-center justify-between mb-3">
+            {isOpen && (
+              <p className="text-white font-semibold text-sm">
+                AI Workspace
+              </p>
+            )}
+
             <FiChevronLeft
-              size={24}
-              className="text-white cursor-pointer"
+              className="text-white cursor-pointer hover:scale-110 transition"
               onClick={() => setIsOpen(!isOpen)}
             />
           </div>
 
-          
-          <div
+       
+          <button
             onClick={clearChat}
-            className="flex items-center gap-3 p-3 hover:bg-[#3e4348] rounded-xl cursor-pointer transition-all duration-200 shadow-sm"
+            className="w-full flex items-center gap-2 px-3 py-2 bg-white text-black rounded-xl text-sm font-medium hover:bg-zinc-200 transition"
           >
-            <FiPlus className="text-white" size={18} />
-            {isOpen && <p className="text-white text-sm font-medium">New Chat</p>}
+            <FiPlus size={16} />
+            {isOpen && "New Chat"}
+          </button>
+
+       
+          <div className="mt-3 flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2">
+            <FiSearch size={14} className="text-zinc-400" />
+            {isOpen && (
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search chats..."
+                className="bg-transparent outline-none text-white text-sm w-full"
+              />
+            )}
           </div>
 
           
-          <div className="mt-6 space-y-2 overflow-y-auto max-h-[60vh] pr-1">
-            {history.length > 0 && isOpen && (
-              <p className="text-xs text-zinc-400 uppercase tracking-wider mb-2">Recent</p>
+          {isOpen && (
+            <p className="text-xs text-zinc-500 mt-4 mb-2 flex items-center gap-1">
+              <FiBookmark size={12} /> PINNED
+            </p>
+          )}
+
+         
+          <div className="space-y-2 max-h-[55vh] overflow-y-auto">
+            {filteredChats.length > 0 ? (
+              filteredChats.map((item) => {
+                const originalIndex = history.findIndex(
+                  (h) => h.id === item.id
+                );
+
+                return (
+                  <ChatItem
+                    key={item.id}
+                    item={item}
+                    index={originalIndex} 
+                    activeChat={activeChat}
+                    setActiveChat={setActiveChat}
+                    isOpen={isOpen}
+                  />
+                );
+              })
+            ) : (
+              <p className="text-zinc-500 text-sm text-center mt-4">
+                No chats found
+              </p>
             )}
-            {history.map((item, index) => (
-              <div
-                key={item.id}
-                onClick={() => {
-                  setActiveChat(index);
-                  setMobileOpen(false);
-                }}
-                className={`
-                  flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200
-                  ${activeChat === index ? "bg-blue-600/40 text-white" : "hover:bg-[#3e4348] text-zinc-300"}
-                `}
-              >
-                <i className="ri-chat-1-line text-lg"></i>
-                {isOpen && <p className="truncate text-sm font-medium">{item.user}</p>}
-              </div>
-            ))}
           </div>
         </div>
 
         
-        {isOpen && (
-          <div className="p-4 space-y-3 text-zinc-300">
-            <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-all duration-200">
-              <i className="ri-question-line text-lg"></i>
-              <p className="text-sm">Help</p>
+        <div className="p-4 border-t border-white/10">
+
+          <div className="flex items-center gap-3 text-white">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20">
+              <img
+                src="/img/IMG12.jpg"
+                alt="profile"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-all duration-200">
-              <i className="ri-settings-5-line text-lg"></i>
-              <p className="text-sm">Settings</p>
-            </div>
+
+            {isOpen && (
+              <div>
+                <p className="text-sm font-medium">Ravi Developer</p>
+                <p className="text-xs text-zinc-400">
+                  Frontend Engineer
+                </p>
+              </div>
+            )}
           </div>
-        )}
+
+          {isOpen && (
+            <div className="mt-3 space-y-2 text-zinc-400 text-sm">
+              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
+                <FiSettings size={14} />
+                Settings
+              </div>
+
+              <div className="flex items-center gap-2 hover:text-white cursor-pointer">
+                <FiUser size={14} />
+                Profile
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

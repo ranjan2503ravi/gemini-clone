@@ -10,15 +10,18 @@ const MyContext = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+ 
   useEffect(() => {
     const saved = localStorage.getItem("chatHistory");
     if (saved) setHistory(JSON.parse(saved));
   }, []);
 
+  
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(history));
   }, [history]);
 
+ 
   const sendPrompt = async (prompt) => {
     if (!prompt.trim()) return;
 
@@ -48,10 +51,34 @@ const MyContext = ({ children }) => {
     }
   };
 
+  
   const clearChat = () => {
     setHistory([]);
     setActiveChat(null);
     localStorage.removeItem("chatHistory");
+  };
+
+  
+  const deleteChat = (id) => {
+    setHistory((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+
+      
+      if (activeChat >= updated.length) {
+        setActiveChat(updated.length - 1);
+      }
+
+      return updated;
+    });
+  };
+
+  
+  const renameChat = (id, newName) => {
+    setHistory((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, user: newName } : item
+      )
+    );
   };
 
   return (
@@ -64,6 +91,10 @@ const MyContext = ({ children }) => {
         loading,
         error,
         clearChat,
+
+       
+        deleteChat,
+        renameChat,
       }}
     >
       {children}
